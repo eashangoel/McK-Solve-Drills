@@ -1,4 +1,5 @@
 {
+  "framework": "vite",
   "installCommand": "npm ci --workspace client --workspace shared --include-workspace-root",
   "buildCommand": "npm run build --workspace client",
   "outputDirectory": "client/dist",
