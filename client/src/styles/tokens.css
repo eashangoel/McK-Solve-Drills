@@ -1,0 +1,69 @@
+/* ------------------------------------------------------------------
+   Design tokens. Dark-first "research console" aesthetic: deep slate
+   ground, one warm accent per game, generous radii, restrained motion.
+   ------------------------------------------------------------------ */
+:root {
+  /* Ground */
+  --bg-0: #0a0d14;
+  --bg-1: #0f131d;
+  --bg-2: #151b28;
+  --bg-3: #1c2433;
+  --bg-hover: #222c3d;
+
+  /* Lines */
+  --line: #232c3d;
+  --line-soft: #1a2130;
+  --line-strong: #33405a;
+
+  /* Ink */
+  --ink-0: #f2f5fa;
+  --ink-1: #c3ccdb;
+  --ink-2: #8d98ad;
+  --ink-3: #5f6b80;
+
+  /* Brand + game accents */
+  --brand: #6ea8ff;
+  --brand-dim: #2d4a7c;
+  --ember: #ff8a4c;
+  --ember-soft: rgba(255, 138, 76, 0.14);
+  --tide: #3fc8d8;
+  --tide-soft: rgba(63, 200, 216, 0.14);
+  --moss: #6fd19a;
+  --moss-soft: rgba(111, 209, 154, 0.14);
+
+  /* Semantic */
+  --good: #58d68d;
+  --warn: #f5c451;
+  --bad: #ff6b6b;
+  --good-soft: rgba(88, 214, 141, 0.14);
+  --warn-soft: rgba(245, 196, 81, 0.14);
+  --bad-soft: rgba(255, 107, 107, 0.14);
+
+  /* Type */
+  --font-display: 'Bricolage Grotesque', 'Inter', system-ui, sans-serif;
+  --font-ui: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+
+  /* Shape */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 18px;
+  --r-xl: 26px;
+
+  /* Depth */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px -8px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 24px 60px -20px rgba(0, 0, 0, 0.75);
+  --glow: 0 0 0 1px rgba(110, 168, 255, 0.35), 0 0 32px -8px rgba(110, 168, 255, 0.45);
+
+  /* Motion */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --fast: 140ms;
+  --med: 240ms;
+}
+
+/* Per-game theming: set data-accent on any container. */
+[data-accent='ember'] { --accent: var(--ember); --accent-soft: var(--ember-soft); }
+[data-accent='tide']  { --accent: var(--tide);  --accent-soft: var(--tide-soft); }
+[data-accent='moss']  { --accent: var(--moss);  --accent-soft: var(--moss-soft); }
+:root { --accent: var(--brand); --accent-soft: rgba(110, 168, 255, 0.14); }
