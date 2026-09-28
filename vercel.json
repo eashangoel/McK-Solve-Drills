@@ -1,7 +1,15 @@
 {
-  "framework": "vite",
-  "installCommand": "npm ci --workspace client --workspace shared --include-workspace-root",
-  "buildCommand": "npm run build --workspace client",
-  "outputDirectory": "client/dist",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "builds": [
+    {
+      "src": "client/package.json",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "dist" }
+    }
+  ],
+  "routes": [
+    { "src": "/assets/(.*)", "dest": "/assets/$1" },
+    { "src": "/favicon.ico", "dest": "/favicon.ico" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
 }
