@@ -1,5 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "npm ci --workspace client --workspace shared --include-workspace-root",
   "builds": [
     {
       "src": "client/package.json",
