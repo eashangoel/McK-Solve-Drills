@@ -25,12 +25,15 @@ The frontend is on <http://localhost:5173>, the API on <http://localhost:3001>.
 
 ## Deploying
 
-The app deploys to Vercel as-is — `vercel.json` builds the React frontend as a
-static site and the Express API as a single serverless function
-(`api/index.ts`), routed so `/api/*` hits the function and everything else
-falls through to the single-page app.
+The app deploys to Vercel as-is, using Vercel's `services` config
+(`vercel.json`): the `client` service is the React app built as a static
+site, and the `server` service is the Express API, entered through
+`server/src/vercelHandler.ts` as a serverless function. Top-level rewrites
+send `/api/*` to the server service and everything else to the client.
 
-To deploy: import the repo in Vercel, then add a `DATABASE_URL` environment
+To deploy: import the repo in Vercel — pick "Import multi-service project" if
+it's offered, so it picks up `vercel.json` rather than treating `client` or
+`server` as a standalone project — then add a `DATABASE_URL` environment
 variable in the project's Settings → Environment Variables, pointing at the
 same Postgres database described below. Without it the function throws on
 every request rather than serving broken data.
@@ -190,9 +193,9 @@ tier, each with a rationale.
 
 ```
 shared/     Types, config constants, seeded RNG, scenario generators + graders
-server/     Express API (app.ts), Postgres data layer, scoring pipeline
-client/     React + Vite UI
-api/        Vercel serverless entrypoint — the same Express app from server/
+server/     Express API (app.ts), Postgres data layer, scoring pipeline,
+            and vercelHandler.ts — the Vercel "server" service's entrypoint
+client/     React + Vite UI — the Vercel "client" service
 ```
 
 Scenario generation and grading are pure functions in `shared/src/scenarios/`
