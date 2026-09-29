@@ -80,8 +80,9 @@ export function Settings() {
       <div className="card" style={{ maxWidth: 560, marginTop: 16 }}>
         <div className="card-title">Data</div>
         <div className="card-sub">
-          Every session is stored in <code className="mono">data/solvetrainer.db</code>. It is a
-          plain SQLite file — back it up by copying it. Clearing browser storage does not touch it.
+          Every session is stored in the Postgres database this app is configured to use — the
+          same one whether you're on localhost or the deployed site. Clearing browser storage
+          does not touch it.
         </div>
       </div>
     </div>

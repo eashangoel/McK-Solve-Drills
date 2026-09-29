@@ -1,6 +1,9 @@
 node_modules/
 dist/
+.vercel/
 data/*.db
 data/*.db-*
+.env
+.env.local
 .DS_Store
 *.log
