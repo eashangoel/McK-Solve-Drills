@@ -13,10 +13,16 @@ import { settingsRouter } from './routes/settings.js';
  * separate module from `index.ts` so neither entrypoint has to know about
  * the other.
  *
- * Migrations and game-module registration complete before this promise
- * resolves, so nothing that imports `app` can hit an unready database — on
+ * Migrations and game-module registration complete before `appReady`
+ * resolves, so nothing that awaits it can hit an unready database — on
  * Vercel that cost is paid once per cold start, the same way `index.ts`
  * used to block on it before calling `.listen()`.
+ *
+ * Exported as a Promise rather than awaited at module top level on purpose:
+ * a bundler that emits this as CommonJS (as `@vercel/node`'s build step may,
+ * depending on how it resolves this file's module type) cannot support
+ * top-level await at all, and would fail to build. A plain exported Promise
+ * works under either module format.
  */
 async function buildApp() {
   await dbReady;
@@ -45,4 +51,4 @@ async function buildApp() {
   return app;
 }
 
-export const app = await buildApp();
+export const appReady = buildApp();

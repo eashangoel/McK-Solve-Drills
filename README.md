@@ -11,8 +11,12 @@ run so nothing is memorisable.
 
 ## Running it
 
+Needs a Postgres database — see **How your data is stored** below for the
+one-time setup. Then:
+
 ```bash
 npm install
+cp .env.example .env   # fill in DATABASE_URL
 npm run dev
 ```
 
@@ -21,26 +25,47 @@ The frontend is on <http://localhost:5173>, the API on <http://localhost:3001>.
 
 ## Deploying
 
-Solve Trainer is built to run locally. The frontend can be deployed to Vercel
-(`vercel.json` is included), but the backend cannot: it is an Express server
-writing to a SQLite file, and Vercel's serverless runtime has no persistent
-disk and no long-running process. A Vercel deployment therefore serves the UI
-only, and every screen that calls `/api` will fail to load data.
+The app deploys to Vercel as-is — `vercel.json` builds the React frontend as a
+static site and the Express API as a single serverless function
+(`api/index.ts`), routed so `/api/*` hits the function and everything else
+falls through to the single-page app.
 
-To run the whole app somewhere other than your laptop you need a host with a
-persistent disk, such as Railway, Fly.io or a small VPS, running `npm run dev`
-or a production start command. Moving to Vercel properly would mean replacing
-SQLite with a hosted database and turning the Express routes into serverless
-functions.
+To deploy: import the repo in Vercel, then add a `DATABASE_URL` environment
+variable in the project's Settings → Environment Variables, pointing at the
+same Postgres database described below. Without it the function throws on
+every request rather than serving broken data.
+
+Redeploying picks up whatever is on the branch Vercel is tracking — pushing to
+that branch triggers a new deploy on its own.
 
 ## How your data is stored
 
-Everything lives in `data/solvetrainer.db`, a plain SQLite file. It survives
-restarts, and clearing browser storage or switching browsers does not touch it.
-Back it up by copying that one file.
+A Postgres database, reached through a single `DATABASE_URL` connection
+string used by both the local dev server and the deployed Vercel function —
+so your local practice and anything you play on the deployed site land in the
+same history. SQLite was the original design here, but Vercel's serverless
+functions have no persistent disk, so a file-based database can't survive
+between requests once deployed; Postgres is what makes the deployed version
+actually work rather than just failing to save.
+
+You need a Postgres database to run this at all, including locally. Any
+standard Postgres works; two free options that take a couple of minutes to
+set up:
+
+- **[Neon](https://neon.tech)** — also what Vercel's own "Postgres" storage
+  product is built on, so you can alternatively provision it straight from
+  your Vercel project's Storage tab and skip creating a separate account.
+- **[Supabase](https://supabase.com)**
+
+Copy the connection string into `.env` locally (see `.env.example`) and into
+the Vercel project's environment variables for the deployed site — same
+string in both places gives you one shared history.
 
 Schema migrations are append-only and tracked in `schema_migrations`, so an
-existing database keeps its history when the app is updated.
+existing database keeps its history when the app is updated. There's no more
+`data/solvetrainer.db` file to back up; back up the database itself, however
+your provider supports (Neon and Supabase both have point-in-time recovery on
+their free tiers).
 
 ## Scoring
 
@@ -165,9 +190,9 @@ tier, each with a rationale.
 
 ```
 shared/     Types, config constants, seeded RNG, scenario generators + graders
-server/     Express API, SQLite, scoring pipeline
+server/     Express API (app.ts), Postgres data layer, scoring pipeline
 client/     React + Vite UI
-data/       The SQLite file
+api/        Vercel serverless entrypoint — the same Express app from server/
 ```
 
 Scenario generation and grading are pure functions in `shared/src/scenarios/`
