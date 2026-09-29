@@ -195,10 +195,14 @@
 .table-wrap {
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
-  overflow: hidden;
   background: var(--bg-1);
+  /* Scroll rather than clip: a table wider than its card should never lose
+     a column off the edge, especially inside the fixed-width exhibit cards. */
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
 }
-table.data { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+table.data { width: 100%; min-width: max-content; border-collapse: collapse; font-size: 13.5px; }
 table.data th {
   text-align: left;
   padding: 11px 14px;
@@ -311,3 +315,7 @@ td.num, th.num { text-align: right; font-family: var(--font-mono); font-variant-
   text-align: center;
 }
 .build-row[data-done] .build-tick { color: var(--good); }
+
+.row-clickable { cursor: pointer; }
+.row-clickable:hover td { background: var(--bg-2); }
+.row-clickable:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }

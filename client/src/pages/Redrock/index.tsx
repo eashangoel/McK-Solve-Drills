@@ -166,7 +166,7 @@ export function RedrockGame({ mode = 'drill' }: { mode?: 'full' | 'drill' }) {
   }
 
   if (stage === 'done' && result) {
-    return <Results result={result} onAgain={() => window.location.reload()} />;
+    return <Results result={result} answers={answers} onAgain={() => window.location.reload()} />;
   }
 
   const stageIdx = ORDER.indexOf(stage);

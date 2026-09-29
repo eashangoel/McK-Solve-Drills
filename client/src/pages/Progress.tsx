@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { GAME_META, GAMES, type Game } from '@solve/shared';
 import { api, type LeaderboardRow } from '../api.js';
 import { fmtDateTime, fmtDuration, fmtScore, scoreTone } from '../lib/format.js';
@@ -8,6 +9,7 @@ import { fmtDateTime, fmtDuration, fmtScore, scoreTone } from '../lib/format.js'
  * calendar land in phase (e) once there is data worth plotting.
  */
 export function Progress() {
+  const nav = useNavigate();
   const [rows, setRows] = useState<LeaderboardRow[] | null>(null);
   const [filter, setFilter] = useState<Game | 'all'>('all');
 
@@ -64,7 +66,16 @@ export function Progress() {
             </thead>
             <tbody>
               {rows.map((r) => (
-                <tr key={r.id}>
+                <tr
+                  key={r.id}
+                  className="row-clickable"
+                  onClick={() => nav(`/sessions/${r.id}`)}
+                  tabIndex={0}
+                  role="button"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') nav(`/sessions/${r.id}`);
+                  }}
+                >
                   <td>{fmtDateTime(r.completedAt)}</td>
                   <td>{GAME_META[r.game].name}</td>
                   <td>

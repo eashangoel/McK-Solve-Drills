@@ -4,6 +4,7 @@ import { Today } from './pages/Today.js';
 import { Play } from './pages/Play.js';
 import { Progress } from './pages/Progress.js';
 import { Settings } from './pages/Settings.js';
+import { SessionReview } from './pages/SessionReview.js';
 
 export function App() {
   return (
@@ -13,6 +14,7 @@ export function App() {
           <Route path="/" element={<Today />} />
           <Route path="/play/:game" element={<Play />} />
           <Route path="/progress" element={<Progress />} />
+          <Route path="/sessions/:id" element={<SessionReview />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>

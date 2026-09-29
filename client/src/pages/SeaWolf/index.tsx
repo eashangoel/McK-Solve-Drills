@@ -148,7 +148,7 @@ export function SeaWolfGame({ mode = 'drill' }: { mode?: 'full' | 'drill' }) {
   }
 
   if (result) {
-    return <Results result={result} onAgain={() => window.location.reload()} />;
+    return <Results result={result} answers={answers} onAgain={() => window.location.reload()} />;
   }
 
   if (!session || !scenario || !site) {

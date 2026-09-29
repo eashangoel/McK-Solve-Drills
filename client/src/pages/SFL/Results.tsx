@@ -6,7 +6,7 @@ import { scoreTone } from '../../lib/format.js';
 interface Props {
   result: SessionScores & { scenario: unknown };
   answers: SflAnswers;
-  onAgain: () => void;
+  onAgain?: () => void;
 }
 
 const TIER_LABEL: Record<Tier, string> = {
@@ -178,9 +178,15 @@ export function Results({ result, answers, onAgain }: Props) {
         <button className="btn btn-ghost" onClick={() => nav('/progress')}>
           View progress
         </button>
-        <button className="btn btn-primary btn-lg" onClick={onAgain}>
-          Run it again
-        </button>
+        {onAgain ? (
+          <button className="btn btn-primary btn-lg" onClick={onAgain}>
+            Run it again
+          </button>
+        ) : (
+          <button className="btn btn-primary btn-lg" onClick={() => nav('/play/sfl')}>
+            Practice again
+          </button>
+        )}
       </div>
     </div>
   );

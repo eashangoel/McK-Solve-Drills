@@ -1,15 +1,27 @@
 import { useNavigate } from 'react-router-dom';
-import type { SessionScores, SeaWolfScenario } from '@solve/shared';
+import type { SessionScores, SeaWolfScenario, SeaWolfAnswers, Site } from '@solve/shared';
+import { evaluateTrio } from '@solve/shared';
 import { ScoreRing } from '../../components/ScoreRing.js';
 import { scoreTone } from '../../lib/format.js';
 
 interface Props {
   result: SessionScores & { scenario: unknown };
-  onAgain: () => void;
+  answers: SeaWolfAnswers;
+  onAgain?: () => void;
 }
 
-/** Post-run review: which constraints were missed, and a trio that would have worked. */
-export function Results({ result, onAgain }: Props) {
+const round1 = (v: number) => Math.round(v * 10) / 10;
+
+function label(site: Site, key: string): string {
+  if (key.startsWith('trait:')) {
+    const t = key.slice(6);
+    return site.traits.find((x) => x.key === t)?.label ?? t;
+  }
+  return site.attributes.find((a) => a.key === key)?.label ?? key;
+}
+
+/** Post-run review: your actual trio evaluated against every constraint, plus a worked example. */
+export function Results({ result, answers, onAgain }: Props) {
   const nav = useNavigate();
   const scenario = result.scenario as SeaWolfScenario;
   const notes = result.breakdown?.notes ?? [];
@@ -56,6 +68,12 @@ export function Results({ result, onAgain }: Props) {
           const example = site.candidates.filter((m) => site.exampleTrio.includes(m.id));
           const traitLabel = (k: string) => site.traits.find((t) => t.key === k)?.label ?? k;
 
+          const siteAns = answers.sites?.[site.id];
+          const yourTrio = site.candidates.filter((m) => siteAns?.trio?.includes(m.id));
+          const checks = yourTrio.length ? evaluateTrio(site, yourTrio) : [];
+          const yourBinding = new Set(siteAns?.priorities ?? []);
+          const trueBinding = new Set(site.bindingKeys);
+
           return (
             <div className="card" key={site.id}>
               <div className="row-between" style={{ alignItems: 'flex-start' }}>
@@ -68,7 +86,73 @@ export function Results({ result, onAgain }: Props) {
                 </span>
               </div>
 
-              <div className="card-sub" style={{ marginTop: 12 }}>{note?.detail}</div>
+              {yourTrio.length === 3 ? (
+                <div className="your-trio">
+                  <div className="stat-label" style={{ marginBottom: 8 }}>Your treatment trio</div>
+                  <div className="table-wrap" style={{ borderRadius: 12 }}>
+                    <table className="data">
+                      <thead>
+                        <tr>
+                          <th>Culture</th>
+                          {site.attributes.map((a) => (
+                            <th key={a.key} className="num">{a.label}</th>
+                          ))}
+                          <th>Traits</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {yourTrio.map((m) => (
+                          <tr key={m.id}>
+                            <td style={{ fontStyle: 'italic' }}>{m.name}</td>
+                            {site.attributes.map((a) => (
+                              <td key={a.key} className="num">{m.attrs[a.key]}</td>
+                            ))}
+                            <td>
+                              {site.traits.filter((t) => m.traits[t.key]).map((t) => t.label).join(', ') || '—'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div className="constraint-checks">
+                    {checks.map((c) => (
+                      <div className="constraint-check" key={c.key} data-met={c.met}>
+                        <span className="constraint-check-mark">{c.met ? '✓' : '✗'}</span>
+                        <span className="constraint-check-label">{label(site, c.key)}</span>
+                        <span className="constraint-check-detail mono">{c.detail}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="row wrap" style={{ gap: 8, marginTop: 10 }}>
+                    <span className="stat-label" style={{ marginRight: 2 }}>You prioritised</span>
+                    {[...yourBinding].map((k) => (
+                      <span
+                        key={k}
+                        className={`chip ${trueBinding.has(k) ? 'chip-good' : ''}`}
+                      >
+                        {label(site, k)}
+                      </span>
+                    ))}
+                    {[...trueBinding].filter((k) => !yourBinding.has(k)).length > 0 && (
+                      <>
+                        <span className="stat-label" style={{ margin: '0 2px' }}>· actually binding</span>
+                        {[...trueBinding]
+                          .filter((k) => !yourBinding.has(k))
+                          .map((k) => (
+                            <span key={k} className="chip chip-warn">{label(site, k)}</span>
+                          ))}
+                      </>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="banner" data-tone="bad" style={{ marginTop: 12 }}>
+                  No treatment trio was submitted for this site.
+                </div>
+              )}
 
               <details style={{ marginTop: 14 }}>
                 <summary className="details-summary">
@@ -95,7 +179,7 @@ export function Results({ result, onAgain }: Props) {
                         <div key={a.key} className="worked-avg">
                           <span>{a.label}</span>
                           <span className="mono">
-                            avg {Math.round(avg * 10) / 10} in {site.ranges[a.key].min}–
+                            avg {round1(avg)} in {site.ranges[a.key].min}–
                             {site.ranges[a.key].max}
                           </span>
                         </div>
@@ -124,9 +208,15 @@ export function Results({ result, onAgain }: Props) {
         <button className="btn btn-ghost" onClick={() => nav('/progress')}>
           View progress
         </button>
-        <button className="btn btn-primary btn-lg" onClick={onAgain}>
-          Run it again
-        </button>
+        {onAgain ? (
+          <button className="btn btn-primary btn-lg" onClick={onAgain}>
+            Run it again
+          </button>
+        ) : (
+          <button className="btn btn-primary btn-lg" onClick={() => nav('/play/seawolf')}>
+            Practice again
+          </button>
+        )}
       </div>
     </div>
   );
